@@ -1,47 +1,52 @@
 import nmap
 import sys
-
-print("Esto es una herramienta automatizada de Nmap")
-print("############################################")
+import json
 
 def mainMenu():
-    """mainMenu
-        1- Port scan
-    """
-    addr = input("Introduzca una ip: ")
-    print("Has introducido es: ", addr)
-    type(addr)
+    print("This is an automated tool of Nmap")
+    #time.sleep(1)
+    print()
 
-    resp = input("""\n Opciones a elegir
-                    1.- Escaneo de puertos \n""")
+    choice = input("""
+                        1: Scan all ports (1-45003).
+                        2: Scan specific port.
+                        3: --------
+                        4: --------
+                        5: --------
+                        Please enter your choice: """)
+    print()
 
-    print("########################################")
-
-    if resp == '1':
+    if choice == '1':
+        addr = input("Ip: ")
         nmapScanPorts(addr)
     else:
-        print("Acción erronea")
+        print("Wrong option")
+
         mainMenu()
-"""
-    Scan for a single host
-"""
+
 def nmapScanPorts(addr):
 
     scanner = nmap.PortScanner()
-    scanner.scan(addr, '1-45003', '-P')
-    print("Version nmap:  ", scanner.nmap_version())
-    print("Host: %s (%s)"% (addr, scanner[addr].hostname()))
-    print("Disponibilidad: %s" % scanner[addr].state())
+    try:
+        scanner.scan(addr, '22-200')
+        ports = scanner[addr]['tcp'].keys()
+        nmap_list = []
+        for port in ports:
+            report = {}
+            state = scanner[addr]['tcp'][port]['state']
+            service = scanner[addr]['tcp'][port]['name']
+            product = scanner[addr]['tcp'][port]['product']
+            report['port'] = port
+            report['state'] = state
+            report['service'] = service
+            report['product'] = product
 
-    for protocol in scanner[addr].all_protocols():
-        print('----------------------------------')
-        print('Protocolo : %s' % protocol)
-        lport = scanner[addr][protocol].keys()
-        lports = sorted(lport)
-        for ports in lports:
-            print('Puerto : %s\tEstado : %s' % (ports, scanner[addr][protocol][ports]['state']))
-        print('----------------------------------')
+            if state == 'open':
+                nmap_list.append(report)
+        report = json.dumps(nmap_list)
+        print(report)
+    except Exception as e:
+            print(e)
     mainMenu()
-
 
 mainMenu()
