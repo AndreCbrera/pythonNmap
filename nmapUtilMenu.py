@@ -10,7 +10,7 @@ def mainMenu():
     choice = input("""
                         1: Scan all ports (1-45003).
                         2: Scan specific port.
-                        3: --------
+                        3: Test
                         4: --------
                         5: --------
                         Please enter your choice: """)
